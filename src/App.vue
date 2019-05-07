@@ -1,26 +1,24 @@
 <template>
   <v-app>
-    <h1 id="hello">{{ message }} vuejs</h1>
-    <router-link to="/hello">aa</router-link>
-    <router-view></router-view>
+    <my-header></my-header>
+    <my-content></my-content>
   </v-app>
 </template>
 
 <script>
+import Header from "./Header";
+import Content from "./Content";
 export default {
   name: "App",
+  components: {
+    "my-header": Header,
+    "my-content": Content
+  },
   data() {
-    return {
-      message: "Hello"
-    };
+    return {};
   }
 };
 </script>
 
 <style scoped>
-#hello {
-  color: red;
-  font-size: 50pt;
-  margin-left: 40%;
-}
 </style>
