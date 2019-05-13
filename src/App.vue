@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="inspire">
     <my-header></my-header>
     <my-content></my-content>
   </v-app>
@@ -13,9 +13,6 @@ export default {
   components: {
     "my-header": Header,
     "my-content": Content
-  },
-  data() {
-    return {};
   }
 };
 </script>

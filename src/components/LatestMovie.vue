@@ -4,11 +4,12 @@
       <v-progress-circular indeterminate :size="150" :width="10" color="green"/>
     </div>
   </v-container>
-  <v-container v-else grid-list-{xs through xl}="xl">
+
+  <v-container v-else grid-list-xl>
     <v-layout wrap>
       <v-flex xs4 v-for="(item, index) in wholeResponse" :key="index" mb-4>
         <v-card>
-          <v-img :src="item.Poster" aspect-ratio="1"></v-img>
+          <v-img :src="item.Poster" aspect-ratio="0.6"></v-img>
 
           <v-card-title primary-title>
             <div>
@@ -29,7 +30,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import movieApi from "../services/MovieApi";
 export default {
   name: "LatestMovie",
   data() {
@@ -38,25 +39,22 @@ export default {
       loading: true
     };
   },
-  created() {},
-  computed: {},
-  methods: {
-    singleMovie(id) {
-      this.$router.push("/movie/" + id);
-    }
-  },
   mounted() {
-    axios
-      .get(
-        "http://www.omdbapi.com/?s=mummy&apikey=a2b923e3&page=1&type=movie&Content-Type=application/json"
-      )
+    movieApi
+      .fetchMovieColletion("mummy")
       .then(response => {
-        this.wholeResponse = response.data.Search;
+        this.wholeResponse = response.Search;
         this.loading = false;
       })
       .catch(error => {
         console.log(error);
       });
+  },
+  computed: {},
+  methods: {
+    singleMovie(id) {
+      this.$router.push("/movie/" + id);
+    }
   }
 };
 </script>

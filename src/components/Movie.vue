@@ -1,9 +1,39 @@
 <template>
-  <v-container>
-    <v-layout row wrap>
+  <v-container v-if="loading">
+    <div class="text-xs-center">
+      <v-progress-circular indeterminate :size="150" :width="10" color="green"/>
+    </div>
+  </v-container>
+
+  <v-container v-else>
+    <v-layout justify-center align-center>
+      <v-flex xs4>
+        <v-card>
+          <v-img :src="singleMovie.Poster" aspect-ratio="0.6"></v-img>
+          <v-card-title primary-title>
+            <div>
+              <h2 class="headline mb-0">{{singleMovie.Title}}-{{singleMovie.Year}}</h2>
+              <p>{{singleMovie.Plot}}</p>
+              <h3>Actors:</h3>
+              {{singleMovie.Actors}}
+              <h4>Awards:</h4>
+              {{singleMovie.Awards}}
+              <h4>Genre:</h4>
+              {{singleMovie.Genre}}
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn color="green" @click="back">back</v-btn>
+          <v-btn round color="green" :href="singleMovie.Website" target="_blank">Visit site</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <v-layout align-center justify-center fill-height>
       <v-flex xs12>
         <div class="text-xs-center">
-          <v-dialog width="500">
+          <v-dialog width="500" v-model="dialog" persistent no-click-animation>
             <v-btn slot="activator" color="green" dark>View Ratings</v-btn>
             <v-card>
               <v-card-title class="headline grey lighten-2" primary-title>Ratings</v-card-title>
@@ -13,9 +43,11 @@
                     <th>Source</th>
                     <th>Ratings</th>
                   </tr>
-                  <tr v-for="(rating, index) in this.ratings" :key="index">
-                    <td align="center">{{ratings[index].Source}}</td>
-                    <td align="center">{{ratings[index].Value}}</td>
+                  <tr v-for="(rating, index) in this.singleMovie.Ratings" :key="index">
+                    <td align="center">{{rating.Source}}</td>
+                    <td align="center">
+                      <v-rating readonly :half-increments="true" :value="rating.Value"></v-rating>
+                    </td>
                   </tr>
                 </table>
               </v-card-text>
@@ -33,7 +65,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import movieApi from "../services/MovieApi";
 export default {
   name: "Movie",
   props: ["id"],
@@ -41,21 +73,29 @@ export default {
     return {
       singleMovie: "",
       dialog: false,
-      rating: []
+      loading: true,
+      ratings: ""
     };
   },
   created() {},
   computed: {},
-  methods: {},
+  methods: {
+    back() {
+      this.$router.push("/");
+    }
+  },
   mounted() {
-    axios
-      .get(
-        "http://www.omdbapi.com/?apikey=a2b923e3&i=" +
-          this.id +
-          "&Content-Type=application/json"
-      )
+    movieApi
+      .fetchSingleMovie(this.id)
       .then(response => {
-        this.singleMovie = response.data;
+        this.singleMovie = response;
+        this.ratings = this.singleMovie.Ratings;
+        this.ratings.forEach(element => {
+          element.Value = parseFloat(element.Value.split(/\/|%/)[0]);
+          element.Value =
+            element.Value <= 10 ? element.Value / 2 : element.Value / 20;
+        });
+        this.loading = false;
       })
       .catch(error => {
         console.log(error);
@@ -64,5 +104,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped >
+.v-progress-circular {
+  margin: 100rem;
+}
 </style>
